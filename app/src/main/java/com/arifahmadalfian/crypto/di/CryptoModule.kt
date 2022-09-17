@@ -1,7 +1,8 @@
 package com.arifahmadalfian.crypto.di
 
-import com.arifahmadalfian.crypto.CryptoManager
-import com.arifahmadalfian.crypto.ICryptoManager
+import com.arifahmadalfian.crypto.CryptoManagerFile
+import com.arifahmadalfian.crypto.ICryptoManagerFile
+import com.arifahmadalfian.crypto.ICryptoMangerDatastore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +15,13 @@ object CryptoModule {
 
     @Provides
     @Singleton
-    fun provideCryptoManager(): ICryptoManager {
-        return CryptoManager()
+    fun provideCryptoManagerFile(): ICryptoManagerFile {
+        return CryptoManagerFile()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCryptoManagerDatastore(): ICryptoMangerDatastore {
+        return CryptoManagerFile()
     }
 }

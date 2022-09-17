@@ -20,7 +20,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject
-    lateinit var cryptoManager: ICryptoManager
+    lateinit var cryptoManager: ICryptoManagerFile
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                         Row {
                             Button(
                                 onClick = {
-                                    messageToDecrypt = cryptoManager.toEncrypt(messageToEncrypt, filesDir)
+                                    messageToDecrypt = cryptoManager.encryptFile(messageToEncrypt, filesDir)
                                 }
                             ) {
                                 Text(text = "Encrypt")
@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
                             Button(
                                 onClick = {
-                                    messageToDecrypt = cryptoManager.toDecrypt(filesDir)
+                                    messageToDecrypt = cryptoManager.decryptFile(filesDir)
                                 }
                             ) {
                                 Text(text = "Decrypt")
