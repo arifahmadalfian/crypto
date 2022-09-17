@@ -13,11 +13,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arifahmadalfian.crypto.ui.theme.EncriptionAndDecryptionTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var cryptoManager: ICryptoManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val cryptoManager = CryptoManager
         setContent {
             EncriptionAndDecryptionTheme {
                 Surface(
@@ -30,10 +36,6 @@ class MainActivity : ComponentActivity() {
 
                     var messageToDecrypt by remember {
                         mutableStateOf("")
-                    }
-
-                    var file by remember {
-                        mutableStateOf(filesDir)
                     }
 
                     Column(
@@ -52,7 +54,7 @@ class MainActivity : ComponentActivity() {
                         Row {
                             Button(
                                 onClick = {
-                                    messageToDecrypt = cryptoManager.toEncrypt(messageToEncrypt, file)
+                                    messageToDecrypt = cryptoManager.toEncrypt(messageToEncrypt, filesDir)
                                 }
                             ) {
                                 Text(text = "Encrypt")
@@ -60,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
                             Button(
                                 onClick = {
-                                    messageToDecrypt = cryptoManager.toDecrypt(file)
+                                    messageToDecrypt = cryptoManager.toDecrypt(filesDir)
                                 }
                             ) {
                                 Text(text = "Decrypt")

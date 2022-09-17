@@ -8,8 +8,9 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
+import kotlin.Exception
 
-class CryptoManagerImpl {
+class CryptoManager: ICryptoManager {
 
     companion object {
         private const val ANDROID_KEY_STORE = "AndroidKeyStore"
@@ -56,7 +57,7 @@ class CryptoManagerImpl {
         }.generateKey()
     }
 
-    internal fun encrypt(bytes: ByteArray, outputStream: OutputStream): ByteArray {
+    private fun encrypt(bytes: ByteArray, outputStream: OutputStream): ByteArray {
         val encryptedBytes = encryptCipher.doFinal(bytes)
         outputStream.use {
             it.write(encryptCipher.iv.size)
@@ -67,7 +68,7 @@ class CryptoManagerImpl {
         return encryptedBytes
     }
 
-    internal fun decrypt(inputStream: InputStream): ByteArray {
+    private fun decrypt(inputStream: InputStream): ByteArray {
         return inputStream.use {
             val ivSize = it.read()
             val iv = ByteArray(ivSize)
@@ -80,13 +81,8 @@ class CryptoManagerImpl {
             getDecryptCipherForIv(iv).doFinal(encryptedBytes)
         }
     }
-}
 
-object CryptoManager {
-    private var cryptoManager: CryptoManagerImpl = CryptoManagerImpl()
-    private const val fileName = "secret.txt"
-
-    fun toEncrypt(str: String, filesDir: File): String {
+    override fun toEncrypt(str: String, filesDir: File, fileName: String): String {
         val bytes = str.encodeToByteArray()
         val file = File(filesDir, fileName)
         if (!file.exists()) {
@@ -94,16 +90,31 @@ object CryptoManager {
         }
         val fos = FileOutputStream(file)
 
-        return cryptoManager.encrypt(
-            bytes = bytes,
-            outputStream = fos
-        ).decodeToString()
+        return try {
+            encrypt(
+                bytes = bytes,
+                outputStream = fos
+            ).decodeToString()
+        } catch (e: Exception) {
+            "$e"
+        }
+
     }
 
-    fun toDecrypt(filesDir: File): String {
+    override fun toDecrypt(filesDir: File, fileName: String): String {
         val file = File(filesDir, fileName)
-        return cryptoManager.decrypt(
-            inputStream = FileInputStream(file)
-        ).decodeToString()
+        return try {
+            decrypt(
+                inputStream = FileInputStream(file)
+            ).decodeToString()
+        } catch (e: Exception) {
+            "File Empty"
+        }
+
     }
+}
+
+interface ICryptoManager {
+    fun toEncrypt(str: String, filesDir: File, fileName: String = "secret.txt"): String
+    fun toDecrypt(filesDir: File, fileName: String = "secret.txt"): String
 }
