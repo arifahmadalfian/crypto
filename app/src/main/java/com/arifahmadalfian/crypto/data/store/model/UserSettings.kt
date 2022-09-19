@@ -1,4 +1,4 @@
-package com.arifahmadalfian.crypto
+package com.arifahmadalfian.crypto.data.store.model
 
 import kotlinx.serialization.Serializable
 

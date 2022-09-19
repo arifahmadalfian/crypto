@@ -1,16 +1,16 @@
-package com.arifahmadalfian.crypto
+package com.arifahmadalfian.crypto.data.crp
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import java.io.*
+import java.io.InputStream
+import java.io.OutputStream
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
-import kotlin.Exception
 
-class CryptoManagerFile: ICryptoManagerFile, ICryptoMangerDatastore {
+class CryptoManager : ICryptoManager {
 
     companion object {
         private const val ANDROID_KEY_STORE = "AndroidKeyStore"
@@ -26,7 +26,7 @@ class CryptoManagerFile: ICryptoManagerFile, ICryptoMangerDatastore {
         load(null)
     }
 
-    private val encryptCipher = Cipher.getInstance(TRANSFORMATION).apply {
+    private val encryptCipher: Cipher = Cipher.getInstance(TRANSFORMATION).apply {
         init(Cipher.ENCRYPT_MODE, getKey())
     }
 
@@ -57,7 +57,7 @@ class CryptoManagerFile: ICryptoManagerFile, ICryptoMangerDatastore {
         }.generateKey()
     }
 
-    override fun encryptDatastore(bytes: ByteArray, outputStream: OutputStream): ByteArray {
+    override fun encrypt(bytes: ByteArray, outputStream: OutputStream): ByteArray {
         val encryptedBytes = encryptCipher.doFinal(bytes)
         outputStream.use {
             it.write(encryptCipher.iv.size)
@@ -68,7 +68,7 @@ class CryptoManagerFile: ICryptoManagerFile, ICryptoMangerDatastore {
         return encryptedBytes
     }
 
-    override fun decryptDatastore(inputStream: InputStream): ByteArray {
+    override fun decrypt(inputStream: InputStream): ByteArray {
         return inputStream.use {
             val ivSize = it.read()
             val iv = ByteArray(ivSize)
@@ -81,45 +81,12 @@ class CryptoManagerFile: ICryptoManagerFile, ICryptoMangerDatastore {
             getDecryptCipherForIv(iv).doFinal(encryptedBytes)
         }
     }
-
-    override fun encryptFile(str: String, filesDir: File, fileName: String): String {
-        val bytes = str.encodeToByteArray()
-        val file = File(filesDir, fileName)
-        if (!file.exists()) {
-            file.createNewFile()
-        }
-        val fos = FileOutputStream(file)
-
-        return try {
-            encryptDatastore(
-                bytes = bytes,
-                outputStream = fos
-            ).decodeToString()
-        } catch (e: Exception) {
-            "$e"
-        }
-
-    }
-
-    override fun decryptFile(filesDir: File, fileName: String): String {
-        val file = File(filesDir, fileName)
-        return try {
-            decryptDatastore(
-                inputStream = FileInputStream(file)
-            ).decodeToString()
-        } catch (e: Exception) {
-            "File Empty"
-        }
-
-    }
 }
 
-interface ICryptoManagerFile {
-    fun encryptFile(str: String, filesDir: File, fileName: String = "secret.txt"): String
-    fun decryptFile(filesDir: File, fileName: String = "secret.txt"): String
-}
 
-interface ICryptoMangerDatastore {
-    fun encryptDatastore(bytes: ByteArray, outputStream: OutputStream): ByteArray
-    fun decryptDatastore(inputStream: InputStream): ByteArray
-}
+
+
+
+
+
+
